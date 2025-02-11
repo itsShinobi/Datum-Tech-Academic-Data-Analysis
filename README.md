@@ -1,8 +1,10 @@
 # Datum-Tech-Academic-Data-Analysis
 Datum Tech faces several challenges that require a detailed analysis of its academic data. They recently moved their data to a database and need a data analyst to manipulate it and extract meaningful insight.
 
-## 🏫 Project Overview
-Datum Tech is a leading data platform known for its academic technological excellence. They offer a variety of programs across multiple departments. However, they face challenges in managing and analyzing student performance, course popularity, and departmental insights. This SQL-based analysis provides actionable insights to improve student success and optimize course distribution.
+# 📊 Datum Tech Academic Data Analysis
+
+## 🏩 Project Overview
+Datum Tech is a leading data platform known for its academic excellence in technology. They offer a variety of programs across multiple departments. However, they face challenges in managing and analyzing student performance, course popularity, and departmental insights. This SQL-based analysis aims to provide actionable insights to improve student success and optimize course distribution.
 
 ## 🎯 Objectives
 - Identify patterns in student performance to enhance learning outcomes.
@@ -19,6 +21,7 @@ The dataset consists of the following key tables:
 
 ## 🔍 SQL Analysis & Queries
 
+### 📅 Day 1 - Student Performance & Tutor Salary Assessment
 #### 🔹 How many departments are in Datum Tech?
 ```sql
 SELECT COUNT(DISTINCT department_id) FROM departments;
@@ -60,38 +63,42 @@ SELECT ROUND(AVG(teacher_salary), 2) AS avg_salary
 FROM teacher;
 ```
 
+### 📅 Day 2 - Course Insights & Student Enrollment
 #### 🔹 List of courses and their respective departments
 ```sql
-SELECT course_name, department 
-FROM courses;
+SELECT courses.course_name, departments.department_name
+FROM courses
+INNER JOIN departments ON courses.department = departments.department_id;
 ```
 #### 🔹 Students scoring above 75 with their respective courses
 ```sql
-SELECT student_name, course_id, score 
-FROM scores 
-WHERE score > 75;
+SELECT scores.student_name, courses.course_name, scores.score 
+FROM scores
+INNER JOIN courses ON scores.course_id = courses.course_id
+WHERE scores.score > 75;
 ```
 #### 🔹 All courses, including those without assigned teachers
 ```sql
-SELECT c.course_name, t.teacher_name 
-FROM courses c 
-LEFT JOIN teacher t ON c.teacher_id = t.teacher_id;
+SELECT courses.course_name, COALESCE(teacher.teacher_name, 'No Teacher Assigned') AS teacher_name 
+FROM courses
+LEFT JOIN teacher ON courses.course_id = teacher.teacher_course;
 ```
 #### 🔹 List of all students with their respective courses (including those not assigned to any)
 ```sql
-SELECT s.student_name, c.course_name 
-FROM students s 
-LEFT JOIN scores sc ON s.student_id = sc.student_id 
-LEFT JOIN courses c ON sc.course_id = c.course_id;
+SELECT students.student_name, COALESCE(courses.course_name, 'No Course Assigned') AS course_name
+FROM students
+LEFT JOIN scores ON students.student_id = scores.student_id
+LEFT JOIN courses ON scores.course_id = courses.course_id;
 ```
 #### 🔹 Courses with their total student enrollments (including courses with no students enrolled)
 ```sql
-SELECT c.course_name, COUNT(s.student_id) AS total_students 
-FROM courses c 
-LEFT JOIN scores s ON c.course_id = s.course_id 
-GROUP BY c.course_name;
+SELECT courses.course_name, COUNT(DISTINCT scores.student_name) AS total_students
+FROM courses
+LEFT JOIN scores ON courses.course_id = scores.course_id
+GROUP BY courses.course_name;
 ```
 
+### 📅 Day 3 - Salary Analysis & Academic Performance Trends
 #### 🔹 Teachers and their salaries in decimal format
 ```sql
 SELECT teacher_name, CAST(teacher_salary AS DECIMAL(10,2)) AS salary 
@@ -99,18 +106,14 @@ FROM teacher;
 ```
 #### 🔹 Teachers and their salaries displayed in dollars
 ```sql
-SELECT teacher_name, CONCAT('$', FORMAT(teacher_salary, 2)) AS salary 
+SELECT teacher_name, CAST('$' || teacher_salary AS VARCHAR) AS salary 
 FROM teacher;
 ```
 #### 🔹 Number of students scoring above the average score
 ```sql
-WITH avg_score AS (
-    SELECT AVG(score) AS overall_avg 
-    FROM scores
-)
-SELECT COUNT(student_id) 
+SELECT COUNT(student_name) 
 FROM scores 
-WHERE score > (SELECT overall_avg FROM avg_score);
+WHERE score > (SELECT AVG(score) FROM scores);
 ```
 #### 🔹 Teachers with salaries below the average salary
 ```sql
@@ -118,6 +121,11 @@ SELECT teacher_name, teacher_salary
 FROM teacher 
 WHERE teacher_salary < (SELECT AVG(teacher_salary) FROM teacher);
 ```
+
+## 📊 Dashboard Visualization
+To provide better insights, a Power BI/Tableau dashboard was developed. Below is a snapshot of the dashboard:
+
+![Dashboard](./images/dashboard.png)
 
 ## 📌 Key Insights
 - **Student Performance:** 40% of students scored above 70, with an average Advanced Excel score of 75.6.
@@ -129,7 +137,7 @@ WHERE teacher_salary < (SELECT AVG(teacher_salary) FROM teacher);
 - **Improve Student Support:** Extra tutoring for courses with an average score below 50.
 - **Optimize Course Distribution:** Consider adding more courses to underrepresented departments.
 - **Increase Teacher Salaries:** Adjust salaries for teachers earning below average to improve retention.
-- **Enhance Student Enrollment:** Address missing enrollments to ensure all students actively learn.
+- **Enhance Student Enrollment:** Address missing enrollments to ensure all students are actively learning.
 
 ---
 
