@@ -21,7 +21,6 @@ The dataset consists of the following key tables:
 
 ## 🔍 SQL Analysis & Queries
 
-### 📅 Day 1 - Student Performance & Tutor Salary Assessment
 #### 🔹 How many departments are in Datum Tech?
 ```sql
 SELECT COUNT(DISTINCT department_id) FROM departments;
@@ -63,7 +62,6 @@ SELECT ROUND(AVG(teacher_salary), 2) AS avg_salary
 FROM teacher;
 ```
 
-### 📅 Day 2 - Course Insights & Student Enrollment
 #### 🔹 List of courses and their respective departments
 ```sql
 SELECT courses.course_name, departments.department_name
@@ -98,7 +96,6 @@ LEFT JOIN scores ON courses.course_id = scores.course_id
 GROUP BY courses.course_name;
 ```
 
-### 📅 Day 3 - Salary Analysis & Academic Performance Trends
 #### 🔹 Teachers and their salaries in decimal format
 ```sql
 SELECT teacher_name, CAST(teacher_salary AS DECIMAL(10,2)) AS salary 
@@ -111,21 +108,22 @@ FROM teacher;
 ```
 #### 🔹 Number of students scoring above the average score
 ```sql
-SELECT COUNT(student_name) 
-FROM scores 
-WHERE score > (SELECT AVG(score) FROM scores);
+SELECT student_name, score
+FROM scores
+WHERE score > (
+	SELECT AVG (score) 
+	FROM scores
+);
 ```
 #### 🔹 Teachers with salaries below the average salary
 ```sql
 SELECT teacher_name, teacher_salary 
 FROM teacher 
-WHERE teacher_salary < (SELECT AVG(teacher_salary) FROM teacher);
+WHERE teacher_salary < (
+    SELECT AVG(teacher_salary)
+   FROM teacher
+);
 ```
-
-## 📊 Dashboard Visualization
-To provide better insights, a Power BI/Tableau dashboard was developed. Below is a snapshot of the dashboard:
-
-![Dashboard](./images/dashboard.png)
 
 ## 📌 Key Insights
 - **Student Performance:** 40% of students scored above 70, with an average Advanced Excel score of 75.6.
